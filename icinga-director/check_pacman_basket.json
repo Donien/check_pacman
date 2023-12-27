@@ -1,0 +1,155 @@
+{
+    "Command": {
+        "pacman": {
+            "arguments": {
+                "--critical": {
+                    "description": "Critical threshold for number of packages that have updates available.",
+                    "repeat_key": false,
+                    "required": false,
+                    "value": "$pacman_critical$"
+                },
+                "--list": {
+                    "description": "Print a list of packages that have updates available, default: false.",
+                    "repeat_key": false,
+                    "required": false,
+                    "set_if": "$pacman_list$",
+                    "set_if_format": "string"
+                },
+                "--update": {
+                    "description": "Perform a cache update (pacman -Sy), default: false.",
+                    "repeat_key": false,
+                    "required": false,
+                    "set_if": "$pacman_update$",
+                    "set_if_format": "string"
+                },
+                "--warning": {
+                    "description": "Warning threshold for number of packages that have updates available.",
+                    "repeat_key": false,
+                    "required": false,
+                    "value": "$pacman_warning$"
+                },
+                "Package Names": {
+                    "description": "Package names for which to check for updates. If specified, other packages are ignored.",
+                    "repeat_key": true,
+                    "required": false,
+                    "skip_key": true,
+                    "value": "$pacman_packages$",
+                    "order": "1"
+                }
+            },
+            "command": "PluginDir + /check_pacman",
+            "fields": [],
+            "methods_execute": "PluginCheck",
+            "object_name": "pacman",
+            "object_type": "object",
+            "uuid": "4a732456-db44-4301-87b2-de3d07a55cb7"
+        }
+    },
+    "ServiceTemplate": {
+        "pacman": {
+            "check_command": "pacman",
+            "fields": [
+                {
+                    "datafield_id": 1,
+                    "is_required": "n",
+                    "var_filter": null
+                },
+                {
+                    "datafield_id": 2,
+                    "is_required": "n",
+                    "var_filter": null
+                },
+                {
+                    "datafield_id": 3,
+                    "is_required": "n",
+                    "var_filter": null
+                },
+                {
+                    "datafield_id": 4,
+                    "is_required": "n",
+                    "var_filter": null
+                },
+                {
+                    "datafield_id": 5,
+                    "is_required": "n",
+                    "var_filter": null
+                }
+            ],
+            "object_name": "pacman",
+            "object_type": "template",
+            "use_agent": true,
+            "uuid": "8882b663-3fa9-43bf-a9f6-9068d8e5341b"
+        }
+    },
+    "Basket": {
+        "check_pacman": {
+            "basket_name": "check_pacman",
+            "objects": {
+                "Command": [
+                    "pacman"
+                ],
+                "ServiceTemplate": [
+                    "pacman"
+                ],
+                "Basket": [
+                    "check_pacman"
+                ]
+            },
+            "owner_type": "user",
+            "owner_value": "admin",
+            "uuid": "efe7e664-3a8e-b479-407b-ed80f8372d8e"
+        }
+    },
+    "Datafield": {
+        "1": {
+            "uuid": "052e2c1d-aa24-46e3-90d7-e7cf6c4bdced",
+            "varname": "pacman_critical",
+            "caption": "Pacman Critical",
+            "description": "Critical threshold for number of packages that have updates available.",
+            "datatype": "Icinga\\Module\\Director\\DataType\\DataTypeNumber",
+            "format": null,
+            "settings": {},
+            "category": null
+        },
+        "2": {
+            "uuid": "20f79427-d0b2-433a-9d19-997c2e13d523",
+            "varname": "pacman_list",
+            "caption": "Pacman List",
+            "description": "Print a list of packages that have updates available, default: false.",
+            "datatype": "Icinga\\Module\\Director\\DataType\\DataTypeBoolean",
+            "format": null,
+            "settings": {},
+            "category": null
+        },
+        "3": {
+            "uuid": "5e118a39-aee5-4818-91c1-376ce9a71dd9",
+            "varname": "pacman_packages",
+            "caption": "Pacman Packages",
+            "description": "Package names for which to check for updates. If specified, other packages are ignored.",
+            "datatype": "Icinga\\Module\\Director\\DataType\\DataTypeArray",
+            "format": null,
+            "settings": {},
+            "category": null
+        },
+        "4": {
+            "uuid": "d4189b27-ce0c-4c79-a86b-6dcde30dcb3b",
+            "varname": "pacman_update",
+            "caption": "Pacman Update",
+            "description": "Perform a cache update (pacman -Sy), default: false.",
+            "datatype": "Icinga\\Module\\Director\\DataType\\DataTypeBoolean",
+            "format": null,
+            "settings": {},
+            "category": null
+        },
+        "5": {
+            "uuid": "c125e8b2-ce4a-4e29-beda-7d3e9c0cdc8c",
+            "varname": "pacman_warning",
+            "caption": "Pacman Warning",
+            "description": "Warning threshold for number of packages that have updates available.",
+            "datatype": "Icinga\\Module\\Director\\DataType\\DataTypeNumber",
+            "format": null,
+            "settings": {},
+            "category": null
+        }
+    }
+}
