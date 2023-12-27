@@ -1,0 +1,153 @@
+#!/usr/bin/bash
+
+
+VERSION=1.0.0
+
+### Default Values
+minimum_value=0
+maximum_value=
+warning_value=20
+critical_value=50
+do_list=0
+do_update=0
+exit_code=3
+
+pacman_dbpath=$(pacman-conf DBPath)
+
+
+function show_help() {
+    cat << EOF
+check_pacman v${VERSION}
+
+This plugin checks for software updates available for 
+'pacman' (Arch Linux and derivatives).
+
+Usage:
+check_pacman [-l] [-u] [-w WARNING] [-c CRITICAL] [PACKAGE NAMES]
+
+Options:
+  -h, --help
+    Print this help.
+  -u, --update
+    Perform a cache update (pacman -Sy), default: false.
+  -l, --list
+    Print a list of packages that have updates available, default: false.
+  -w, --warning
+    Warning threshold for number of packages that have updates available, default: ${warning_value}.
+  -c, --critical
+    Critical threshold for number of packages that have updates available, default: ${critical_value}.
+
+Arguments:
+  Positional arguments are treated as package names for which to check
+  for updates. If specified, other packages are ignored.
+EOF
+    exit ${exit_code}
+}
+
+function list_updates() {
+    echo "${available_upgrades_list[@]}" | column --table --table-columns "Package,Version"
+}
+
+function update_cache() {
+    # Create separate pacman database directory so use of 'pacman -Sy' is allowed
+
+    # Check for 'fakeroot'
+    if [ -z $(which fakeroot) ];then
+        echo "Fakeroot script not available."
+        echo "Can't update pacman cache."
+        exit ${exit_code}
+    fi
+    pacman_dbpath_orig="$pacman_dbpath"
+    pacman_dbpath="/tmp/check_pacman-$(id --user)/"
+    if [ ! -d "${pacman_dbpath}" ];then
+        mkdir -p "${pacman_dbpath}"
+    fi
+    if [ ! -L "${pacman_dbpath}local" ];then
+        ln -s "${pacman_dbpath_orig}local" "${pacman_dbpath}local" 2>/dev/null
+    fi
+    fakeroot -- pacman -Sy --dbpath "${pacman_dbpath}" --logfile /dev/null &>/dev/null
+}
+
+function print_output() {
+    if [ ${critical_value} -gt 0 ] && [ ${available_upgrades} -ge ${critical_value} ];then
+        echo -n "CRITICAL"
+        exit_code=2
+    elif [ ${warning_value} -gt 0 ] && [ ${available_upgrades} -ge ${warning_value} ];then
+        echo -n "WARNING"
+        exit_code=1
+    else
+        echo -n "OK"
+        exit_code=0
+    fi
+    echo ": ${available_upgrades} updates available. |'available_upgrades'=${available_upgrades};${warning_value};${critical_value};${minimum_value};${maximum_value}"
+}
+
+
+### CLI Parsing
+while [[ "$#" -gt 0 ]];do
+    case "$1" in
+        -h|--help)
+            show_help
+            ;;
+        -l|--list)
+            do_list=1
+            #shift
+            ;;
+        -u|--update)
+            do_update=1
+            #shift
+            ;;
+        -w|--warning)
+            warning_value="$2"
+            shift
+            ;;
+        -c|--critical)
+            critical_value="$2"
+            shift
+            ;;
+        -*)
+            echo "Unknown option passed: "$1""
+            exit ${exit_code}
+            ;;
+        *)
+            package_names+=" $1"
+            ;;
+    esac
+    shift
+done
+
+main() {
+    # Validate input
+    # ...
+
+    # Strip leading white space
+    package_names="${package_names:1}"
+
+    if [ $do_update -eq 1 ];then
+        update_cache
+    fi
+
+    # If package names are specified, only consider those
+    if [ ! -z "${package_names}" ];then
+        available_upgrades_list=$(pacman -Sp --dbpath "${pacman_dbpath}" --needed --print-format "%n %v" ${package_names})
+    else
+        available_upgrades_list=$(pacman -Sup --dbpath "${pacman_dbpath}" --needed --print-format "%n %v")
+    fi
+
+    available_upgrades=$(echo "${available_upgrades_list}" | wc -l)
+
+    # Catch case where no package needs an update
+    if [ -z "${available_upgrades_list}" ];then
+        available_upgrades=0
+    fi
+
+    print_output
+
+    if [ $do_list -eq 1 ];then
+        list_updates
+    fi
+
+    exit ${exit_code}
+}
+
+main
