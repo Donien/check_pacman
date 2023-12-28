@@ -9,7 +9,9 @@ license=("GPL")
 groups=()
 depends=()
 makedepends=()
-optdepends=()
+optdepends=(
+    "fakeroot"
+)
 provides=()
 conflicts=()
 replaces=()
