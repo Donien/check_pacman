@@ -1,11 +1,11 @@
 pkgname="check_pacman"
-pkgver="1.0.0"
+pkgver="1.0.1"
 pkgrel=1
 epoch=0
 pkgdesc="Checks for available updates using pacman"
 arch=("any")
 url="https://github.com/Donien/check_pacman"
-license=("GPL")
+license=("GPL-3.0-or-later")
 groups=()
 depends=()
 makedepends=()
@@ -24,7 +24,7 @@ source=(
 )
 noextract=()
 sha256sums=(
-    "6b6a526313dddefae5193f87f6ea9090c257f4f45a21fbbf7e27932779b8bd3f"
+    "46a407208022eee3e04989ce728ee87bd6e4bdaec2930db015df4c7331824d17"
 )
 
 

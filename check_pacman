@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 
-VERSION=1.0.0
+VERSION=1.0.1
 
 ### Default Values
 minimum_value=0
@@ -65,7 +65,7 @@ function update_cache() {
     if [ ! -L "${pacman_dbpath}local" ];then
         ln -s "${pacman_dbpath_orig}local" "${pacman_dbpath}local" 2>/dev/null
     fi
-    fakeroot -- pacman -Sy --dbpath "${pacman_dbpath}" --logfile /dev/null &>/dev/null
+    fakeroot -- pacman -Sy --disable-sandbox --dbpath "${pacman_dbpath}" --logfile /dev/null &>/dev/null
 }
 
 function print_output() {
